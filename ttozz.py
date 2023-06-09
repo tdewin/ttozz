@@ -6,8 +6,8 @@ import subprocess
 import re
 import math
 
-def analyzeDir(jobdir,debug,segmenting,kilo,exponent):
-    print("Dir: %s Segment Size: %d" % (jobdir,segmenting))
+def analyzeDir(jobdir,debug,segmenting):
+
     files = glob.glob("%s/*.v[bi][kb]" % jobdir)
 
     segments = set()
@@ -31,13 +31,37 @@ def analyzeDir(jobdir,debug,segmenting,kilo,exponent):
 
     #All the file offsets and disk blocks are in units of 512-byte blocks or half a kb (/2)
     segcount = len(segments)
-    humanize = math.pow(kilo,exponent)
-    suffix = ["K","M","G","T","P"]
-    overlaps = segcount*segmenting/2/humanize
-    fsreportusages = allsegcount*segmenting/2/humanize
+    realusage = segcount*segmenting/2
+    allusage = allsegcount*segmenting/2
     savings = allsegcount/segcount
 
-    print("%s %sB (%d*%d*512); fs reported %s %sB; Savings %s:1" % (overlaps,suffix[exponent],segcount,segmenting,fsreportusages,suffix[exponent],savings))
+    return {
+            "realusage_kb": realusage,
+            "allusage_kb":allusage,
+            "savings": savings,
+            "realsegcount": segcount,
+            "allsegcount": allsegcount,
+            "segment_b": segmenting*512,
+    }
+
+
+def analyzeAndPrintDir(jobdir,debug,segmenting,kilo,exponent):
+    #correcting if you want to use /1000
+    humanize = math.pow(kilo,exponent)/1024
+    suffix = ["","K","M","G","T","P"]
+    s = suffix[exponent]
+
+    print("Dir: %s" % (jobdir))
+    print("Segments: %s" % (segmenting))
+    stats = analyzeDir(jobdir,debug,segmenting)
+
+    print("Real Usage %sB: %s" % (s,(stats["realusage_kb"]/humanize)))
+    print("All Usage %sB: %s" % (s,(stats["allusage_kb"]/humanize)))
+    print("Savings: %s" % (stats["savings"]))
+    
+    print("Real Segments: %s" % (stats["realsegcount"]))
+    print("All Segments: %s" % (stats["allsegcount"]))
+    print("Segment in bytes: %s" % (stats["segment_b"]))
 
 parser = argparse.ArgumentParser(
                     prog='XFS TTOZZ',
@@ -46,9 +70,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-j','--jobdir', required=True)
 parser.add_argument('-s','--segmenting', default=256,type=int,help="granularity of the calculation. Most accurate would be 1 but will take a long time. Use something above > 256 for scalability")
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
-parser.add_argument('-e','--expdivider',default=(2),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=0,m=1,g=2,t=3,p=4")
+parser.add_argument('-e','--expdivider',default=(3),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=1,m=2,g=3,t=4,p=5")
 parser.add_argument('--debug', action=argparse.BooleanOptionalAction)
 args = parser.parse_args()
 if args.debug:
     print(args)
-analyzeDir(args.jobdir,args.debug,args.segmenting,args.bytedivider,args.expdivider)
+analyzeAndPrintDir(args.jobdir,args.debug,args.segmenting,args.bytedivider,args.expdivider)
