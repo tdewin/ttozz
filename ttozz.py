@@ -6,9 +6,12 @@ import subprocess
 import re
 import math
 
-def analyzeDir(jobdir,debug,segmenting):
-
-    files = glob.glob("%s/*.v[bi][kb]" % jobdir)
+def analyzeDir(jobdir,debug,segmenting,isrepo):
+    files = []
+    if isrepo == 1:
+        files = glob.glob("%s/**/*.v[bi][kb]" % jobdir,recursive=True)
+    else:
+        files = glob.glob("%s/*.v[bi][kb]" % jobdir)
 
     segments = set()
     allsegcount = 0
@@ -48,7 +51,7 @@ def analyzeDir(jobdir,debug,segmenting):
     }
 
 
-def analyzeAndPrintDir(jobdir,debug,segmenting,kilo,exponent):
+def analyzeAndPrintDir(jobdir,debug,segmenting,isrepo,kilo,exponent):
     #correcting if you want to use /1000
     humanize = math.pow(kilo,exponent)/1024
     suffix = ["","K","M","G","T","P"]
@@ -56,7 +59,7 @@ def analyzeAndPrintDir(jobdir,debug,segmenting,kilo,exponent):
 
     print("Dir: %s" % (jobdir))
     print("Segments: %s" % (segmenting))
-    stats = analyzeDir(jobdir,debug,segmenting)
+    stats = analyzeDir(jobdir,debug,segmenting,isrepo)
 
     print("Real Usage %sB: %s" % (s,(stats["realusage_kb"]/humanize)))
     print("All Usage %sB: %s" % (s,(stats["allusage_kb"]/humanize)))
@@ -75,7 +78,8 @@ parser.add_argument('-s','--segmenting', default=256,type=int,help="granularity 
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
 parser.add_argument('-e','--expdivider',default=(3),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=1,m=2,g=3,t=4,p=5")
 parser.add_argument('--debug', default=False)
+parser.add_argument('--repo', default=0,help="Not recommended, pass 1 for enabling this",type=int)
 args = parser.parse_args()
 if args.debug:
     print(args)
-analyzeAndPrintDir(args.jobdir,args.debug,args.segmenting,args.bytedivider,args.expdivider)
+analyzeAndPrintDir(args.jobdir,args.debug,args.segmenting,args.repo,args.bytedivider,args.expdivider)
