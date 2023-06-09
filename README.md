@@ -21,6 +21,24 @@ All Segments: 6532
 Segment in bytes: 1048576
 ```
 
+```
+du -h /mnt/backup
+6.4G    /mnt/backup/Backup Job 1
+6.4G    /mnt/backup
+```
+
+```
+df -h /mnt/backup
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdb1       100G  4.7G   96G   5% /mnt/backup
+```
+
+* real usage =~ should be related to df on a disk level. Do take into account that XFS itself, even if empty will still use some space for meta data.
+* all usage =~ should be related to du for the folder
+* savings = all usage / real usage; basically the compression level x:1. For example 1.6 in the example basically means 1.6:1 savings (low because of test lab only having 2 full backups)
+* segment in bytes = basically blocksize. xfs_bmap uses 512 bytes for boundaries, thus if you use a -s 2048, you get 2048*512 = 1048576 bytes or 1mb block size
+
+
 Alternatively use -o json parameter to get some more debug info
 ```
 {
