@@ -6,7 +6,7 @@ import subprocess
 import re
 import math
 
-def analyzeDir(jobdir,segmenting,kilo,exponent):
+def analyzeDir(jobdir,debug,segmenting,kilo,exponent):
     print("Dir: %s Segment Size: %d" % (jobdir,segmenting))
     files = glob.glob("%s/*.v[bi][kb]" % jobdir)
 
@@ -26,8 +26,8 @@ def analyzeDir(jobdir,segmenting,kilo,exponent):
                     segments.add(start)
                     allsegcount += 1
                     start += segmenting 
-            #else:
-            #    print("ignoring:",i.strip())
+            elif debug:
+                print("ignoring bmap output line:",i.strip())
 
     #All the file offsets and disk blocks are in units of 512-byte blocks or half a kb (/2)
     segcount = len(segments)
@@ -47,5 +47,8 @@ parser.add_argument('-j','--jobdir', required=True)
 parser.add_argument('-s','--segmenting', default=256,type=int,help="granularity of the calculation. Most accurate would be 1 but will take a long time. Use something above > 256 for scalability")
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
 parser.add_argument('-e','--expdivider',default=(2),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=0,m=1,g=2,t=3,p=4")
+parser.add_argument('--debug', action=argparse.BooleanOptionalAction)
 args = parser.parse_args()
-analyzeDir(args.jobdir,args.segmenting,args.bytedivider,args.expdivider)
+if args.debug:
+    print(args)
+analyzeDir(args.jobdir,args.debug,args.segmenting,args.bytedivider,args.expdivider)
