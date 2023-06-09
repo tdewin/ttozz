@@ -48,6 +48,7 @@ def analyzeDir(jobdir,debug,segmenting,isrepo):
                 "realsegcount": segcount,
                 "allsegcount": allsegcount,
                 "segment_b": segmenting*512,
+                "files":files
     }
 
 
@@ -60,7 +61,6 @@ def analyzeAndPrintDir(jobdir,debug,segmenting,isrepo,kilo,exponent):
     print("Dir: %s" % (jobdir))
     print("Segments: %s" % (segmenting))
     stats = analyzeDir(jobdir,debug,segmenting,isrepo)
-
     print("Real Usage %sB: %s" % (s,(stats["realusage_kb"]/humanize)))
     print("All Usage %sB: %s" % (s,(stats["allusage_kb"]/humanize)))
     print("Savings: %s" % (stats["savings"]))
@@ -69,6 +69,7 @@ def analyzeAndPrintDir(jobdir,debug,segmenting,isrepo,kilo,exponent):
     print("All Segments: %s" % (stats["allsegcount"]))
     print("Segment in bytes: %s" % (stats["segment_b"]))
 
+# 3-2-1-0-0
 parser = argparse.ArgumentParser(
                     prog='XFS TTOZZ',
                     description='Analyses block cloning',
