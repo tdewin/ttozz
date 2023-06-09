@@ -12,7 +12,10 @@ def analyzeDir(jobdir,debug,segmenting):
 
     segments = set()
     allsegcount = 0
-
+    
+    if len(files) < 1:
+        raise Exception("Could not find any files, make sure you pass directory with vbk/vib files")
+        
     for f in files:
         bmap = subprocess.Popen(["xfs_bmap",f], stdout=subprocess.PIPE, universal_newlines=True)
 
@@ -36,12 +39,12 @@ def analyzeDir(jobdir,debug,segmenting):
     savings = allsegcount/segcount
 
     return {
-            "realusage_kb": realusage,
-            "allusage_kb":allusage,
-            "savings": savings,
-            "realsegcount": segcount,
-            "allsegcount": allsegcount,
-            "segment_b": segmenting*512,
+                "realusage_kb": realusage,
+                "allusage_kb":allusage,
+                "savings": savings,
+                "realsegcount": segcount,
+                "allsegcount": allsegcount,
+                "segment_b": segmenting*512,
     }
 
 
