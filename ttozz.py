@@ -71,7 +71,7 @@ parser.add_argument('-j','--jobdir', required=True)
 parser.add_argument('-s','--segmenting', default=256,type=int,help="granularity of the calculation. Most accurate would be 1 but will take a long time. Use something above > 256 for scalability")
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
 parser.add_argument('-e','--expdivider',default=(3),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=1,m=2,g=3,t=4,p=5")
-parser.add_argument('--debug', action=argparse.BooleanOptionalAction)
+parser.add_argument('--debug', default=False)
 args = parser.parse_args()
 if args.debug:
     print(args)
