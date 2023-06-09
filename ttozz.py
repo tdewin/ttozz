@@ -5,23 +5,24 @@ import glob
 import subprocess
 import re
 import math
+import json
 
-def analyzeDir(jobdir,debug,segmenting,isrepo):
-    files = []
-    if isrepo == 1:
-        files = glob.glob("%s/**/*.v[bi][kb]" % jobdir,recursive=True)
-    else:
-        files = glob.glob("%s/*.v[bi][kb]" % jobdir)
-
+def analyzeFiles(files,debug,segmenting,isrepo):
     segments = set()
     allsegcount = 0
     
     if len(files) < 1:
         raise Exception("Could not find any files, make sure you pass directory with vbk/vib files")
         
-    for f in files:
-        bmap = subprocess.Popen(["xfs_bmap",f], stdout=subprocess.PIPE, universal_newlines=True)
+    filesOut = []
 
+    #All the file offsets and disk blocks are in units of 512-byte blocks or half a kb (/2)
+    segment_b = segmenting*512
+
+    for f in files:
+        fsegcount = 0
+        bmap = subprocess.Popen(["xfs_bmap",f], stdout=subprocess.PIPE, universal_newlines=True)
+        
         for i in bmap.stdout:
             m = re.search("\s+[0-9]+: \[[0-9]+\.\.[0-9]+\]: ([0-9]+)\.\.([0-9]+)",i)
             if m:
@@ -31,9 +32,17 @@ def analyzeDir(jobdir,debug,segmenting,isrepo):
                 while start < stop:
                     segments.add(start)
                     allsegcount += 1
+                    fsegcount += 1
                     start += segmenting 
             elif debug:
                 print("ignoring bmap output line:",i.strip())
+
+        filesOut.append({
+            "name":f,
+            "segcount":fsegcount,
+            "est_filesize":fsegcount*segment_b
+            })
+
 
     #All the file offsets and disk blocks are in units of 512-byte blocks or half a kb (/2)
     segcount = len(segments)
@@ -47,10 +56,20 @@ def analyzeDir(jobdir,debug,segmenting,isrepo):
                 "savings": savings,
                 "realsegcount": segcount,
                 "allsegcount": allsegcount,
-                "segment_b": segmenting*512,
-                "files":files
+                "segment_b": segment_b,
+                "files":filesOut
     }
 
+def analyzeDir(jobdir,debug,segmenting,isrepo):
+    files = []
+    if isrepo == 1:
+        files = glob.glob("%s/**/*.v[bi][kb]" % jobdir,recursive=True)
+    else:
+        files = glob.glob("%s/*.v[bi][kb]" % jobdir)
+    return analyzeFiles(files,debug,segmenting,isrepo)
+
+def analyzeAndPrintJSONDir(jobdir,debug,segmenting,isrepo):
+    print(json.dumps(analyzeDir(jobdir,debug,segmenting,isrepo)))
 
 def analyzeAndPrintDir(jobdir,debug,segmenting,isrepo,kilo,exponent):
     #correcting if you want to use /1000
@@ -75,6 +94,7 @@ parser = argparse.ArgumentParser(
                     description='Analyses block cloning',
                     epilog='Pass a directory')
 parser.add_argument('-j','--jobdir', required=True)
+parser.add_argument('-o','--output', default="human")
 parser.add_argument('-s','--segmenting', default=256,type=int,help="granularity of the calculation. Most accurate would be 1 but will take a long time. Use something above > 256 for scalability")
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
 parser.add_argument('-e','--expdivider',default=(3),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=1,m=2,g=3,t=4,p=5")
@@ -83,4 +103,8 @@ parser.add_argument('--repo', default=0,help="Not recommended, pass 1 for enabli
 args = parser.parse_args()
 if args.debug:
     print(args)
-analyzeAndPrintDir(args.jobdir,args.debug,args.segmenting,args.repo,args.bytedivider,args.expdivider)
+if args.output == "human":
+    analyzeAndPrintDir(args.jobdir,args.debug,args.segmenting,args.repo,args.bytedivider,args.expdivider)
+elif args.output == "json":
+    analyzeAndPrintJSONDir(args.jobdir,args.debug,args.segmenting,args.repo)
+
