@@ -1,5 +1,6 @@
-Make executable
+Download
 ```sh
+wget https://raw.githubusercontent.com/tdewin/ttozz/main/ttozz.py
 chmod +x ttozz.py
 ```
 
