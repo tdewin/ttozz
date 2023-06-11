@@ -55,16 +55,15 @@ def analyzeFiles(files,debug=False,segment_kb=256,superblock=6):
                     
                     if not superstart in superblocks:
                         segments.add(start)
-                        allsegcount += 1
                         fsegcount += 1
                         start += 1
                     else:
                         start += sbsize
-                        allsegcount += sbsize
                         fsegcount += sbsize
             elif debug:
                 print("ignoring bmap output line:",i.strip())
 
+        allsegcount += fsegcount
         filesOut.append({
             "name":f,
             "segcount":fsegcount,
@@ -124,7 +123,7 @@ parser = argparse.ArgumentParser(
                     epilog='Pass a directory')
 parser.add_argument('-j','--jobdir', required=True)
 parser.add_argument('-o','--output', default="human")
-parser.add_argument('-s','--segmenting', default=16,type=int,help="Granularity of the calculation. In KB, lower then 4kb doesn't make sense (4kb XFS blocksize)")
+parser.add_argument('-s','--segmenting', default=64,type=int,help="Granularity of the calculation. In KB, lower then 4kb doesn't make sense (4kb XFS blocksize)")
 parser.add_argument('-S','--superblock', default=6,type=int,help="Magnitude of superblock, recommended to keep as is")
 parser.add_argument('-b','--bytedivider', default=(1024),type=int,help="Default 1024 for converting bytes to human readable.")
 parser.add_argument('-e','--expdivider',default=(3),type=int,help="Exponent to convert value to human readable (bytdivider)^expdivider. k=1,m=2,g=3,t=4,p=5")
