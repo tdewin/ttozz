@@ -12,31 +12,30 @@ chmod +x ttozz.py
 
 Run against a job dir
 ```sh
-sudo ./ttozz.py -j /mnt/backup/Backup\ Job\ 1/ -s 2048
+sudo ./ttozz.py -j /mnt/backup/Backup\ Job\ 1/
 ```
 
 Should output something like this
 ```
 Dir: /mnt/backup/Backup Job 1/
-Segments: 2048
-Real Usage GB: 3.947265625
-All Usage GB: 6.37890625
-Savings: 1.6160316674913409
-Real Segments: 4042
-All Segments: 6532
-Segment in bytes: 1048576
+Segments: 256
+Real Usage GB: 5.6632080078125
+All Usage GB: 10.185546875
+Savings: 1.798547194619878
+Real Segments: 46393
+All Segments: 83440
+Segment in bytes: 131072
 ```
 
 ```
-du -h /mnt/backup
-6.4G    /mnt/backup/Backup Job 1
-6.4G    /mnt/backup
+du -h "/mnt/backup/Backup Job 1"
+12G     /mnt/backup/Backup Job 1
 ```
 
 ```
 df -h /mnt/backup
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/sdb1       100G  4.7G   96G   5% /mnt/backup
+/dev/sdb1       100G  6.6G   94G   7% /mnt/backup
 ```
 
 * real usage =~ should be related to df on a disk level. Do take into account that XFS itself, even if empty will still use some space for meta data.
