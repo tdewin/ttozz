@@ -4,6 +4,12 @@ wget https://raw.githubusercontent.com/tdewin/ttozz/main/ttozz.py
 chmod +x ttozz.py
 ```
 
+or alt download superblock version
+```sh
+wget -O ttozz.py https://raw.githubusercontent.com/tdewin/ttozz/main/ttozz-superblock.py
+chmod +x ttozz.py
+```
+
 Run against a job dir
 ```sh
 sudo ./ttozz.py -j /mnt/backup/Backup\ Job\ 1/ -s 2048
