@@ -56,7 +56,7 @@ def analyzeDir(idir,blksize):
 
         if current[0] <= working[1]:
             if working[0] <= current[0]:
-                working[1] = max(current[0],working[1])
+                working[1] = max(current[1],working[1])
             else:
                 print("not sorted list detected")
         else:
