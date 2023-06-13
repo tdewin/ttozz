@@ -1,5 +1,4 @@
 ﻿$filefrag = "R:\w32filefrag.exe"
-$python = "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe"
 $sfanalyze = "R:\sortedfrag-analyze.ps1"
 
 $folder= "R:\r1\Backup Job 4"
