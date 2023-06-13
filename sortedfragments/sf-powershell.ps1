@@ -1,6 +1,6 @@
 ﻿$filefrag = "R:\w32filefrag.exe"
 $python = "C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe"
-$sfanalyze = "R:\sortedfrag-analyze.py"
+$sfanalyze = "R:\sortedfrag-analyze.ps1"
 
 $folder= "R:\r1\Backup Job 4"
 $cachefolder = "R:\sfcache"
@@ -16,5 +16,4 @@ foreach($f in (Get-ChildItem $folder | ? { $_.name -match ".(vbk|vib)$" })) {
 }
 
 
-. $python $sfanalyze  -d $cpath -b 65536
-
+. $sfanalyze -dirs $cpath -b 65536
