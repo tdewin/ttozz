@@ -69,13 +69,12 @@ def analyzeFile(file):
 
 
 
-
-        
-parser = argparse.ArgumentParser(
+if __name__ == "__main__":
+        parser = argparse.ArgumentParser(
                     prog='XFS sorted frag',
                     description='Sorted frag',
                     epilog='Pass a file')
-parser.add_argument('-f','--file', required=True)
-args = parser.parse_args()
-analyzeFile(args.file)
+        parser.add_argument('-f','--file', required=True)
+        args = parser.parse_args()
+        analyzeFile(args.file)
 

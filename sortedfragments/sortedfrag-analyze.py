@@ -99,12 +99,13 @@ def analyzeDir(idir,blksize):
     print("savings_rat: ",savings_rat)
     print("savings_gb:",(((tkb-rkb)>>16)/16))
 
-parser = argparse.ArgumentParser(
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
                     prog='XFS sorted frag analyze',
                     description='Sorted frag',
                     epilog='Pass a the directory with frag files')
-parser.add_argument('-d','--dir', required=True)
-parser.add_argument('-b','--blksize', default=512,type=int)
-args = parser.parse_args()
-analyzeDir(args.dir,args.blksize)
+    parser.add_argument('-d','--dir', required=True)
+    parser.add_argument('-b','--blksize', default=512,type=int)
+    args = parser.parse_args()
+    analyzeDir(args.dir,args.blksize)
 
