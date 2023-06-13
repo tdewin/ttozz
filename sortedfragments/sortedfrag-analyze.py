@@ -81,7 +81,7 @@ def analyzeDir(idir,blksize):
     #interval 0..0 is 1
     real += (working[1]-working[0])+1
    
-    savings = total/real
+    savings_rat = total/real
 
     blkkb = blksize/1024
     #blksize is in kb
@@ -96,7 +96,8 @@ def analyzeDir(idir,blksize):
     print("total_clusters: ",total)
     print("total_kb: ",tkb)
     print("total_gb: ",(tkb>>16)/16)
-    print("savings: ",savings)
+    print("savings_rat: ",savings_rat)
+    print("savings_gb:",(((tkb-rkb)>>16)/16))
 
 parser = argparse.ArgumentParser(
                     prog='XFS sorted frag analyze',
