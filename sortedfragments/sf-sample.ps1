@@ -11,7 +11,7 @@ $cpath = Join-Path $cachefolder (Get-Item -Path $folder).BaseName
 New-Item -ItemType Directory $cpath -ErrorAction SilentlyContinue  | Out-Null
 
 foreach($f in (Get-ChildItem $folder | ? { $_.name -match ".(vbk|vib)$" })) {
- . $filefrag $f.fullname | Set-Content -Encoding UTF8 (Join-Path $cpath ("{0}.frag" -f $f.BaseName))
+ . $filefrag "-o" ("""{0}\{1}.frag""" -f $cpath,$f.BaseName) ("""{0}""" -f $f.fullname) 
 }
 
 
