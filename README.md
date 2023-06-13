@@ -9,4 +9,4 @@ Look at at sf-sample.sh to see how these would work together
 
 The reason to split it up is that ordening blocks is resource intensive but unless you defragment your filesystem or modify your files does not have to recreated on each and every run. Rather fragments should remain quite static for one file. Thus once start, you should only use sortedfray.py on new files. 
 
-Additionally the output is https://github.com/tdewin/w32filefrag , so you should be able to use sortedfrag-analyze.py to analyze ReFS frags created with w32filefrag
+Additionally the output is https://github.com/tdewin/w32filefrag , so you should be able to use sortedfrag-analyze.(py|ps1) to analyze ReFS frags created with w32filefrag. sf-sample.ps1 is provided for such a setup.
