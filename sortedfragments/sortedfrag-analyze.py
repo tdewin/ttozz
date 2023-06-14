@@ -105,7 +105,7 @@ if __name__ == "__main__":
                     description='Sorted frag',
                     epilog='Pass a the directory with frag files')
     parser.add_argument('-d','--dir', required=True)
-    parser.add_argument('-b','--blksize', default=512,type=int)
+    parser.add_argument('-b','--blksize', default=4096,type=int)
     args = parser.parse_args()
     analyzeDir(args.dir,args.blksize)
 
