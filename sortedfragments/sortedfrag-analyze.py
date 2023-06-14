@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+import os
 import argparse
 import re
 import glob
@@ -14,10 +14,13 @@ def parseLine(ln):
     return res
 
 
-def analyzeDir(idir,blksize):
+def analyzeDir(idir,blksize,hints):
     gpattern = idir+"/*.frag"
     files = glob.glob(gpattern)   
-
+    print("---")
+    print("basedir:",idir)
+    print("frag_files_count: {}".format(len(files)))
+    print("frag_files_processed:")
     stacks = {}
     for f in files:
         reader = open(f, 'r')
@@ -28,7 +31,7 @@ def analyzeDir(idir,blksize):
         if m != None:
             stacks[f] = {"reader":reader,"head":m}
         else:
-            print("Trouble seeking and finding first extend for",f)
+            print("#error: Trouble seeking and finding first extend for",f)
 
     real = 0
     total = 0
@@ -58,7 +61,7 @@ def analyzeDir(idir,blksize):
             if working[0] <= current[0]:
                 working[1] = max(current[1],working[1])
             else:
-                print("not sorted list detected")
+                print("#error: not sorted list detected")
         else:
             #interval 0..0 is 1
             real += (working[1]-working[0])+1
@@ -71,10 +74,10 @@ def analyzeDir(idir,blksize):
             if m:
                 c["head"] = m
             else:
-                print("Read a line for",c,"but it didnt confirm.",ln)
+                print("#error: Read a line for",c,"but it didnt confirm.",ln)
         else:
             c["reader"].close()
-            print("End of",cname)
+            print(" -",os.path.basename(cname))
             stacks.pop(cname)
 
     #add last interval
@@ -90,13 +93,18 @@ def analyzeDir(idir,blksize):
 
     #(>>17)/8 is like dividing by 2^20 or kb to gb
     # (int(math.pow(2,20)) >> 17)/8 = 1
-    print("real_clusters: ",real)
-    print("real_kb: ",rkb)
-    print("real_gb: ",(rkb>>16)/16)
-    print("total_clusters: ",total)
-    print("total_kb: ",tkb)
-    print("total_gb: ",(tkb>>16)/16)
-    print("savings_rat: ",savings_rat)
+    print("real_clusters:",real)
+    if hints > 0:
+        print("# compare with used df \"/origdir\"")
+        print("# only works with single chain on fs or you need to sum_all_dirs(real_kb)")
+    print("real_kb:",rkb)
+    print("real_gb:",(rkb>>16)/16)
+    print("total_clusters:",total)
+    if hints > 0:
+        print("# compare with du \"/origdir\"")
+    print("total_kb:",tkb)
+    print("total_gb:",(tkb>>16)/16)
+    print("savings_rat:",savings_rat)
     print("savings_gb:",(((tkb-rkb)>>16)/16))
 
 if __name__ == "__main__":
@@ -106,6 +114,7 @@ if __name__ == "__main__":
                     epilog='Pass a the directory with frag files')
     parser.add_argument('-d','--dir', required=True)
     parser.add_argument('-b','--blksize', default=4096,type=int)
+    parser.add_argument('--hints', default=0, type=int)
     args = parser.parse_args()
-    analyzeDir(args.dir,args.blksize)
+    analyzeDir(args.dir,args.blksize,args.hints)
 
