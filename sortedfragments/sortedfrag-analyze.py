@@ -15,7 +15,7 @@ def parseLine(ln):
     return res
 
 
-def analyzeDir(idir,ffilter,blksize,hints):
+def analyzeDir(idir,exists,ffilter,blksize,hints):
     files = []
     if idir != "stdin":
         gpattern = idir+"/"+ffilter
@@ -26,20 +26,35 @@ def analyzeDir(idir,ffilter,blksize,hints):
             files.append(f.strip())
     print("---")
     print("basedir:",idir)
-    print("frag_files_count: {}".format(len(files)))
+
+
     if len(files) > 0:
-        print("frag_files_processed:")
+
         stacks = {}
         for f in files:
             reader = open(f, 'r')
-            while reader.readline().strip() != "extents:":
-                #skip
-                pass
+            ln = reader.readline()
+            fname = None
+
+            while ln.strip() != "extents:":
+                s = ln.split(":")
+                if s[0].strip() == "file":
+                    fname = s[1].strip()
+
+
+                ln = reader.readline()
+
             m = parseLine(reader.readline())
             if m != None:
-                stacks[f] = {"reader":reader,"head":m}
+                if exists and os.path.exists(fname) or not exists:
+                    stacks[f] = {"reader":reader,"head":m}
+                else:
+                    print("#ignoring",f)
             else:
                 print("#error: Trouble seeking and finding first extend for",f)
+
+        print("frag_files_count: {}".format(len(stacks)))
+        print("frag_files_processed:")
 
         real = 0
         total = 0
@@ -123,9 +138,10 @@ if __name__ == "__main__":
                     description='Sorted frag',
                     epilog='Pass a the directory with frag files')
     parser.add_argument('-d','--dir', default="",  required=True)
+    parser.add_argument('-e','--exists', default=False)
     parser.add_argument('-f','--filter', default="*.frag")
     parser.add_argument('-b','--blksize', default=4096,type=int)
     parser.add_argument('--hints', default=0, type=int)
     args = parser.parse_args()
-    analyzeDir(args.dir,args.filter,args.blksize,args.hints)
+    analyzeDir(args.dir,args.exists,args.filter,args.blksize,args.hints)
 
