@@ -4,6 +4,7 @@ import argparse
 import re
 import glob
 import math
+import sys
 
 def parseLine(ln):
     res = None
@@ -15,8 +16,14 @@ def parseLine(ln):
 
 
 def analyzeDir(idir,ffilter,blksize,hints):
-    gpattern = idir+"/"+ffilter
-    files = glob.glob(gpattern)   
+    files = []
+    if idir != "stdin":
+        gpattern = idir+"/"+ffilter
+        files = glob.glob(gpattern)
+    else:
+        for f in sys.stdin:
+            print(f)
+            files.append(f.strip())
     print("---")
     print("basedir:",idir)
     print("frag_files_count: {}".format(len(files)))
@@ -115,7 +122,7 @@ if __name__ == "__main__":
                     prog='XFS sorted frag analyze',
                     description='Sorted frag',
                     epilog='Pass a the directory with frag files')
-    parser.add_argument('-d','--dir', required=True)
+    parser.add_argument('-d','--dir', default="",  required=True)
     parser.add_argument('-f','--filter', default="*.frag")
     parser.add_argument('-b','--blksize', default=4096,type=int)
     parser.add_argument('--hints', default=0, type=int)
